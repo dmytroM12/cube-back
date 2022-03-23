@@ -26,21 +26,39 @@ const addUser=(req,res)=>{
       })
     })
 }
-const deleteUser=(res,req)=>{
+const deleteUser=(req,res)=>{
     const email=req.params.email;
-    pool.query(queries.deleteUser,[email], (error,results)=>{
+    pool.query(queries.getUserByEmail,[email], (error,results)=>{
         const noUserFound=!results.rows.length;
         if(noUserFound){
             res.send('User does not exist.')
         }
+        pool.query(queries.deleteUser,[email],(error,results)=>{
+            if(error) throw error;
+            res.status(200).send("User deleted.")
+        })
 
     })
+}
+const updateUser=(req,res)=>{
+    const email=req.params.email;
+    const {password}=req.body;
+    pool.query(queries.getUserByEmail,[email], (error,results)=>{
+        const noUserFound=!results.rows.length;
+        if(noUserFound){
+            res.send('User does not exist.')
+        }
+        pool.query(queries.updateUser,[password,email],(error,results)=>{
+            if (error) throw error;
+            res.status(200).send("User updated.")
+        })
 
-
+    })
 }
 module.exports={
     getUsers,
     getUserByEmail,
     addUser,
     deleteUser,
+    updateUser
 }
