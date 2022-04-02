@@ -25,21 +25,14 @@ const getUserForms=(req,res)=>{
 
 const addForm=(req,res)=>{
     const {uid,name,rows,columns}=req.body;
-    pool.query(queries.checkID,[uid],(error,results)=>{
-        if(error) throw error
-        if(!results.rows.length){
-            res.send("No such user")
-            
+    pool.query(queries.checkForm,[uid,name], (error,results)=>{
+        const formFound=results.rows.length;
+        if(formFound){
+            res.send('Form already exist.')
         }
-        pool.query(queries.checkForm,[uid,name], (error,results)=>{
-            const formFound=results.rows.length;
-            if(formFound){
-                res.send('Form already exist.')
-            }
-            pool.query(queries.addForm,[uid, name, rows,columns],(error,results)=>{
-                if (error) throw error;
-                res.status(200).send("Form created.")
-            })
+        pool.query(queries.addForm,[uid, name, rows,columns],(error,results)=>{
+            if (error) throw error;
+            res.status(200).send("Form created.")
         })
     })
 }
